@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<SimBase.Document Type="InGamePanels" version="1,0">
+  <Filename>cockpit-radio.spb</Filename>
+  <InGamePanels.InGamePanelDefinition id="COCKPIT_RADIO_PANEL" Name="Cockpit Radio" url="html_ui/InGamePanels/CockpitRadio/preview.html" resizeDirections="both" minWidth="48.7" minHeight="30" defaultWidth="48.7" defaultHeight="30" defaultTop="33.000" defaultRight="50.000" icon="ICON_TOOLBAR_COCKPIT_RADIO" buttonVisible="true" />
+</SimBase.Document>

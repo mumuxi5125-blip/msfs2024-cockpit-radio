@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Cockpit Radio 面板预览</title>
+<link rel="stylesheet" href="preview.css"/>
+<script src="stations.js"></script>
+<style>
+body { margin:0; background:#0d141c; font-family:"Microsoft YaHei",sans-serif; }
+#wrap { width:520px; height:640px; margin:30px auto; }
+</style>
+</head>
+<body>
+<div id="wrap">
+	<div id="crMain">
+		<div id="crTabs">
+			<div id="tabFM" class="cr-tab">FM 电台</div>
+			<div id="tabATC" class="cr-tab">ATC 频率</div>
+		</div>
+		<div id="crRegions"></div>
+		<div id="crList"></div>
+		<div id="crStatus">
+			<span id="crNowPlaying" class="cr-np-text">未播放</span>
+			<span id="crConn" class="cr-conn-text" style="color:#7fdd7f">服务已连接</span>
+			<span class="cr-vol-wrap">
+				<span class="cr-vol-label">音量</span>
+				<input type="range" id="crVolume" min="0" max="100" value="80"/>
+			</span>
+			<div class="cr-stop" style="padding:4px 16px;background:#5a2a2a;border:1px solid #8a4a4a;color:#fff;font-size:15px;">停止</div>
+		</div>
+	</div>
+</div>
+<script>
+// 预览用简化逻辑：tab 切换 + 地区筛选 + 列表渲染（与游戏面板一致）
+var currentTab = "fm";
+var currentRegion = "all";
+var tabFM = document.getElementById("tabFM");
+var tabATC = document.getElementById("tabATC");
+var listEl = document.getElementById("crList");
+var regionBar = document.getElementById("crRegions");
+var npText = document.getElementById("crNowPlaying");
+var connEl = document.getElementById("crConn");
+
+// 连本地服务（和游戏面板一样的遥控逻辑）
+var ws = null;
+function connectWs() {
+	try { ws = new WebSocket("ws://127.0.0.1:8765"); } catch (e) { return; }
+	ws.onopen = function () {
+		connEl.textContent = "服务已连接";
+		connEl.style.color = "#7fdd7f";
+	};
+	ws.onclose = function () {
+		connEl.textContent = "服务断开，重连中...";
+		connEl.style.color = "#ff9d6e";
+		setTimeout(connectWs, 3000);
+	};
+}
+// 停止按钮：发 stop 命令
+var stopBtn = document.querySelector(".cr-stop");
+if (stopBtn) {
+	stopBtn.style.cursor = "pointer";
+	stopBtn.addEventListener("click", function () {
+		if (ws && ws.readyState === 1) {
+			ws.send(JSON.stringify({ role: "panel", cmd: "stop" }));
+			npText.textContent = "未播放";
+			var acts = listEl.querySelectorAll(".cr-item");
+			for (var y = 0; y < acts.length; y++) acts[y].classList.remove("cr-active");
+		}
+	});
+}
+// 音量滑块：拖动时发送 volume 给服务，服务转发给播放页
+var volInput = document.getElementById("crVolume");
+if (volInput) {
+	volInput.addEventListener("input", function () {
+		if (ws && ws.readyState === 1) {
+			ws.send(JSON.stringify({ role: "panel", cmd: "volume", v: parseInt(volInput.value, 10) }));
+		}
+	});
+}
+var currentLabel = "";
+function playUrl(url, name) {
+	currentLabel = name;
+	if (ws && ws.readyState === 1) {
+		ws.send(JSON.stringify({ role: "panel", cmd: "play", url: url, name: name }));
+		npText.textContent = "正在播放：" + name;
+	} else {
+		npText.textContent = "服务未连接";
+	}
+}
+connectWs();
+
+function renderRegions() {
+	regionBar.innerHTML = "";
+	var list = (currentTab === "atc") ? COCKPIT_RADIO_REGIONS : COCKPIT_RADIO_FM_REGIONS;
+	for (var i = 0; i < list.length; i++) {
+		var r = list[i];
+		var b = document.createElement("div");
+		b.className = "cr-region" + (r.key === currentRegion ? " cr-region-active" : "");
+		b.textContent = r.label;
+		(function (key) {
+			b.addEventListener("click", function () {
+				currentRegion = key;
+				renderRegions();
+				renderList();
+			});
+		})(r.key);
+		regionBar.appendChild(b);
+	}
+}
+
+function renderList() {
+	listEl.innerHTML = "";
+	if (currentTab === "atc") {
+		for (var i = 0; i < COCKPIT_RADIO_AIRPORTS.length; i++) {
+			var ap = COCKPIT_RADIO_AIRPORTS[i];
+			if (currentRegion !== "all" && ap.region !== currentRegion) continue;
+			var g = document.createElement("div");
+			g.className = "cr-group";
+			var t = document.createElement("div");
+			t.className = "cr-group-title";
+			t.textContent = ap.name + "  " + ap.icao;
+			g.appendChild(t);
+			for (var j = 0; j < ap.feeds.length; j++) {
+				var fd = ap.feeds[j];
+				var it = document.createElement("div");
+				it.className = "cr-item";
+				if (fd.url) { it.classList.add("cr-item-live"); it.style.cursor = "pointer"; }
+				it.textContent = (fd.url ? "▶ " : "") + fd.label;
+				if (fd.url) (function (fd) {
+					it.addEventListener("click", function () {
+						playUrl(fd.url, ap.icao + " · " + fd.label);
+						var acts = listEl.querySelectorAll(".cr-item");
+						for (var k = 0; k < acts.length; k++) acts[k].classList.remove("cr-active");
+						this.classList.add("cr-active");
+					});
+				})(fd);
+				g.appendChild(it);
+			}
+			listEl.appendChild(g);
+		}
+	} else {
+		var g = document.createElement("div");
+		g.className = "cr-group";
+		for (var k = 0; k < COCKPIT_RADIO_STATIONS.length; k++) {
+			var s = COCKPIT_RADIO_STATIONS[k];
+			if (currentRegion !== "all" && s.region !== currentRegion) continue;
+			var it = document.createElement("div");
+			it.className = "cr-item";
+			it.textContent = s.name;
+			(function (st) {
+				it.addEventListener("click", function () {
+					playUrl(st.url, st.name);
+					var items = listEl.querySelectorAll(".cr-item");
+					for (var x = 0; x < items.length; x++) items[x].classList.remove("cr-active");
+					this.classList.add("cr-active");
+				});
+			})(s);
+			g.appendChild(it);
+		}
+		listEl.appendChild(g);
+	}
+}
+
+tabFM.addEventListener("click", function () {
+	currentTab = "fm";
+	tabFM.classList.add("cr-tab-active");
+	tabATC.classList.remove("cr-tab-active");
+	renderRegions();
+	renderList();
+});
+tabATC.addEventListener("click", function () {
+	currentTab = "atc";
+	tabATC.classList.add("cr-tab-active");
+	tabFM.classList.remove("cr-tab-active");
+	renderRegions();
+	renderList();
+});
+
+tabFM.classList.add("cr-tab-active");
+renderRegions();
+renderList();
+</script>
+</body>
+</html>

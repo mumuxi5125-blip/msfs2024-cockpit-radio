@@ -1,0 +1,20 @@
+# Python build artifacts
+__pycache__/
+build/
+dist/
+*.spec.bak
+
+# Runtime / test logs
+cockpit.log
+
+# Bundled binaries (download separately or keep local only)
+ffplay.exe
+nircmd.exe
+
+# MSFS build intermediates
+_PackageInt/
+PackagesMetadata/
+
+# OS junk
+Thumbs.db
+Desktop.ini

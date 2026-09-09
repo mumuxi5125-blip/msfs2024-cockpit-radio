@@ -1,0 +1,171 @@
+#crMain {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    padding: 8px 10px 10px 10px;
+    box-sizing: border-box;
+    background: #16202a;
+}
+
+/* 顶部标签页 */
+#crTabs {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.cr-tab {
+    padding: 6px 18px;
+    margin-right: 8px;
+    font-size: 18px;
+    color: #d5dee4;
+    background: #233141;
+    border: 1px solid #3a4a5c;
+    cursor: pointer;
+    user-select: none;
+}
+
+.cr-tab:hover {
+    background: #2d3f52;
+}
+
+.cr-tab-active {
+    color: #ffffff;
+    background: #2a5a86;
+    border: 1px solid #4d9fd4;
+}
+
+/* 列表区 */
+#crList {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    margin-bottom: 8px;
+}
+
+.cr-group {
+    margin-bottom: 6px;
+}
+
+.cr-group-title {
+    padding: 7px 8px 5px 8px;
+    font-size: 17px;
+    font-weight: bold;
+    color: #8fd8ff;
+    background: #1f3a50;
+    border-left: 4px solid #4d9fd4;
+}
+
+.cr-item {
+    padding: 6px 10px 6px 22px;
+    font-size: 17px;
+    color: #eef4f8;
+    cursor: pointer;
+    user-select: none;
+    border-left: 4px solid transparent;
+}
+
+.cr-item:hover {
+    background: #2d3f52;
+    color: #ffffff;
+}
+
+.cr-item.cr-active {
+    background: #1e4a33;
+    color: #9ff0a0;
+    border-left: 4px solid #58c858;
+}
+
+/* 底部状态栏 */
+#crStatus {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    padding-top: 6px;
+    border-top: 1px solid #3a4a5c;
+}
+
+.cr-np-text {
+    flex: 1;
+    font-size: 15px;
+    color: #ffd76e;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cr-vol-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right: 10px;
+}
+
+.cr-vol-label {
+    font-size: 14px;
+    color: #d5dee4;
+    margin-right: 4px;
+}
+
+#crVolume {
+    width: 90px;
+}
+
+.cr-stop {
+    flex-shrink: 0;
+}
+
+/* 滚动条 */
+#crList::-webkit-scrollbar {
+    width: 10px;
+}
+
+#crList::-webkit-scrollbar-thumb {
+    background: #41566c;
+}
+
+#crList::-webkit-scrollbar-thumb:hover {
+    background: #54708c;
+}
+
+/* 地区筛选栏 */
+#crRegions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+}
+
+.cr-region {
+    padding: 4px 14px;
+    margin-right: 6px;
+    margin-bottom: 4px;
+    font-size: 15px;
+    color: #d5dee4;
+    background: #233141;
+    border: 1px solid #3a4a5c;
+    cursor: pointer;
+    user-select: none;
+}
+
+.cr-region:hover {
+    background: #2d3f52;
+}
+
+.cr-region-active {
+    color: #ffffff;
+    background: #2a5a86;
+    border: 1px solid #4d9fd4;
+}
+
+/* 连接状态 */
+.cr-conn-text {
+    font-size: 13px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
