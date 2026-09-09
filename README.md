@@ -18,4 +18,4 @@
 - ✈️ ATC：香港 VHHH、新加坡樟宜 WSSS（无人通话时静默属正常）
 - 🎚️ 面板内置音量与停止
 
-MIT License © Haha
+MIT License © mumuxi5125-blip
