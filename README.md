@@ -4,7 +4,7 @@
 
 Listen to real live FM radio and real aviation ATC feeds while you fly MSFS 2024 — no external browser needed. Audio is streamed by a bundled ffplay engine controlled from an in-game toolbar panel.
 
-> ⬇️ **Download**: grab the latest zip from the [Releases](https://github.com/REPLACE_OWNER/msfs2024-cockpit-radio/releases) page.
+> ⬇️ **Download**: grab the latest zip from the [Releases](https://github.com/mumuxi5125-blip/msfs2024-cockpit-radio/releases) page.
 > ⬇️ **下载**：请到 Releases 页面下载最新 zip。
 
 ---
