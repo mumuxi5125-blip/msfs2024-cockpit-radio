@@ -10,7 +10,24 @@
 2. 双击运行 `CockpitRadioServer.exe`（右下角托盘出现图标）
 3. 进游戏，从工具栏打开「驾驶舱电台」，点台收听
 
-> ⚠️ 第 2 步的 exe 是出声引擎，**必须先运行再进游戏**，否则没声音。免安装、免 Python，杀软误报请添加信任。
+> ⚠️ 第 2 步的 exe 是出声引擎，**必须先运行再进游戏**，否则没声音。免安装、免 Python。
+
+## 关于杀软误报
+
+服务端是开源的 Python 程序，用 [Nuitka](https://nuitka.net/) 编译成原生 exe（非 PyInstaller，
+不带运行时自解压载荷）。它未做代码签名，且会拉起同目录的 `ffplay.exe` 播放音频，
+少数引擎可能给出 `Suspicious` / `Unsafe` 之类的启发式判定。
+
+源码在 `server/` 目录可自行审阅，也可用 `tools/build_nuitka.ps1` 自行编译。
+如被拦截，请把 `CockpitRadioServer` 文件夹加入信任。
+
+## 构建（自行编译）
+
+```powershell
+cd tools
+pwsh -File .\build_nuitka.ps1     # 需要 Python 3.12 + Visual Studio 2022 (C++ 工具链)
+pwsh -File .\test_nuitka.ps1      # 7 项端到端验证
+```
 
 ## 特性
 

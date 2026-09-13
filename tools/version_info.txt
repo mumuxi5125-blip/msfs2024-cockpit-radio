@@ -1,0 +1,15 @@
+# Nuitka --windows-version-info= 用的版本资源
+# 作用：给 exe 加"版本信息"（VERSIONINFO 资源）。
+# 无版本信息 + 无签名的 exe 在静态 ML 引擎（SentinelOne / CrowdStrike 等）那里
+# 会被扣信誉分，是 "Suspicious PE" 类误报的常见诱因之一。
+VersionInfo = {
+    'Dependencies': 'Python 3.12 runtime, websockets, psutil, pystray, pillow; ffplay.exe (FFmpeg) bundled separately',
+    'CompanyName': 'Cockpit Radio (open source, MIT)',
+    'FileDescription': 'Cockpit Radio Server - local audio service for MSFS 2024',
+    'FileVersion': (1, 1, 0, 0),
+    'InternalName': 'CockpitRadioServer',
+    'LegalCopyright': 'MIT License. https://github.com/mumuxi5125-blip/msfs2024-cockpit-radio',
+    'OriginalFilename': 'CockpitRadioServer.exe',
+    'ProductName': 'Cockpit Radio',
+    'ProductVersion': (1, 1, 0, 0),
+}

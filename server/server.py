@@ -52,6 +52,9 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 VERSION = '1.1.0'
 
 # ---- 可选依赖：托盘 ----
+# 显式指定 pystray 后端：冻结/编译后 pystray 自动探测后端容易失败（找不到 win32 后端时
+# 会导入 Xorg/AppIndicator 而报错），锁死 win32。
+os.environ.setdefault('PYSTRAY_BACKEND', 'win32')
 try:
     import pystray
     from PIL import Image, ImageDraw
@@ -106,7 +109,13 @@ logging.getLogger('asyncio').setLevel(logging.CRITICAL)
 
 
 def log(msg):
-    print(msg)
+    # 无控制台打包（--noconsole / --windows-console-mode=disable）时 sys.stdout 为 None，
+    # 直接 print 会抛 AttributeError，故做保护。
+    try:
+        if sys.stdout is not None:
+            print(msg)
+    except Exception:
+        pass
     logging.info(msg)
 
 
@@ -283,6 +292,16 @@ def _find_ffplay_session():
     """在 Windows 音频会话里找 ffplay 的那一路"""
     if not HAS_PYCAW:
         return None
+    # pycaw 通过 COM 访问 Core Audio，而 COM 是「按线程」初始化的：
+    # 本函数由 asyncio.to_thread 丢到线程池线程里跑，那些线程没调过 CoInitialize，
+    # 会抛 "尚未调用 CoInitialize"(-2147221008) 而静默失败（音量看起来没反应）。
+    coinit = None
+    try:
+        import comtypes
+        comtypes.CoInitialize()
+        coinit = comtypes
+    except Exception as e:
+        log('[WARN] CoInitialize fail: %s' % e)
     try:
         for s in AudioUtilities.GetAllSessions():
             proc = getattr(s, 'Process', None)
@@ -293,6 +312,12 @@ def _find_ffplay_session():
                 return s
     except Exception as e:
         log('[WARN] pycaw enumerate fail: %s' % e)
+    finally:
+        if coinit is not None:
+            try:
+                coinit.CoUninitialize()
+            except Exception:
+                pass
     return None
 
 
@@ -442,6 +467,10 @@ def run_tray():
 # ================= 启动提示 =================
 
 def startup_prompt():
+    # 自动化测试/静默场景可设 COCKPIT_SILENT=1 跳过弹窗，否则弹窗会挡住无人值守的测试
+    if os.environ.get('COCKPIT_SILENT') == '1':
+        log('startup prompt skipped (COCKPIT_SILENT=1)')
+        return
     try:
         winsound.MessageBeep(winsound.MB_ICONINFORMATION)
     except Exception:

@@ -8,6 +8,14 @@
   `Misc.Riskware.NirCmd`, `NirCmd (PUA)` and `W32.Trojan.Gen` (riskware / PUA / trojan),
   which is why Flightsim.to rejected the upload.
   Volume now uses the Windows Core Audio session API instead of an external tool.
+- **Repackaged with Nuitka instead of PyInstaller.** PyInstaller's bootloader looks like a
+  dropper to static ML engines (unsigned, no version info, unpacks and executes a payload at
+  runtime), which produced `BehavesLike.Win64.Dropper` / `Static AI - Suspicious PE` false
+  positives. The service is now compiled to native code; the executable also carries proper
+  Windows version information.
+- **Fixed: volume changes silently did nothing.** Windows COM must be initialised per thread,
+  and the volume code runs on a worker thread, so `pycaw` failed with
+  `CoInitialize has not been called` (-2147221008). Now initialised before use.
 - **Fixed: audio kept playing after closing the app.** The tray "Exit" now stops `ffplay`
   before quitting, and any leftover `ffplay` from a previous crash is cleaned up on startup.
 - **Fixed: volume changes could block the service** for up to 2 seconds (the retry loop ran
@@ -15,9 +23,9 @@
 - **New `ffplay.log`.** `ffplay`'s stderr is written to a log file instead of being discarded,
   so "no sound" issues can actually be diagnosed. If `ffplay` dies right after starting, the
   reason is also recorded in `cockpit.log`.
-- **Packaged as `--onedir`** instead of `--onefile` (fewer antivirus false positives on the exe).
 - Volume has a fallback backend: without the optional `pycaw` module it restarts `ffplay`
   with the new volume (~1s gap). Install `pycaw` for instant volume changes.
+- Settings: set `COCKPIT_SILENT=1` to skip the startup message box (useful for automation).
 
 ## v1.0.0 — 2026-09-09
 

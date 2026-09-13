@@ -1,0 +1,15 @@
+# Cockpit Radio Server v3 依赖
+#
+# 必需
+websockets>=12
+psutil>=5.9
+pystray>=0.19
+pillow>=10
+
+# 可选（强烈建议）：平滑音量控制（Windows Core Audio 音频会话）
+# 装上后拖音量滑块即时生效；不装则回退为重启 ffplay 应用音量（约 1 秒断音）
+pycaw>=20240210
+comtypes>=1.2.0
+
+# 注意：不要使用 nircmd.exe（VirusTotal 7 家报 PUA/Riskware/Trojan，会导致插件
+# 被 flightsim.to 等平台判为风险内容而打回）
