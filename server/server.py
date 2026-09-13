@@ -289,17 +289,22 @@ def cleanup_orphan_ffplay():
 # ================= 音量控制（pycaw） =================
 
 def _find_ffplay_session():
-    """在 Windows 音频会话里找 ffplay 的那一路"""
+    """在 Windows 音频会话里找 ffplay 的那一路。
+
+    注意：pycaw 通过 COM 访问 Core Audio，而 COM 是「按线程」初始化的。
+    本函数由 asyncio.to_thread 丢到线程池线程里跑，那些线程没调过 CoInitialize，
+    会抛 "尚未调用 CoInitialize"(-2147221008) 而静默失败（音量看起来没反应）。
+
+    这里**刻意不做 CoUninitialize**：本函数把 COM 对象（sess）返回给调用方，
+    调用方随后还要用它调 SetMasterVolume。若在此处反初始化，就是在 COM 单元
+    失效后再使用该对象（未定义行为，可能静默失效）。而且 comtypes 一旦加载
+    ole32 后，进程内 COM 保持可用，泄漏一个按线程的 COM 单元没有实际代价。
+    """
     if not HAS_PYCAW:
         return None
-    # pycaw 通过 COM 访问 Core Audio，而 COM 是「按线程」初始化的：
-    # 本函数由 asyncio.to_thread 丢到线程池线程里跑，那些线程没调过 CoInitialize，
-    # 会抛 "尚未调用 CoInitialize"(-2147221008) 而静默失败（音量看起来没反应）。
-    coinit = None
     try:
         import comtypes
         comtypes.CoInitialize()
-        coinit = comtypes
     except Exception as e:
         log('[WARN] CoInitialize fail: %s' % e)
     try:
@@ -312,12 +317,6 @@ def _find_ffplay_session():
                 return s
     except Exception as e:
         log('[WARN] pycaw enumerate fail: %s' % e)
-    finally:
-        if coinit is not None:
-            try:
-                coinit.CoUninitialize()
-            except Exception:
-                pass
     return None
 
 
