@@ -8,11 +8,9 @@
   `Misc.Riskware.NirCmd`, `NirCmd (PUA)` and `W32.Trojan.Gen` (riskware / PUA / trojan),
   which is why Flightsim.to rejected the upload.
   Volume now uses the Windows Core Audio session API instead of an external tool.
-- **Repackaged with Nuitka instead of PyInstaller.** PyInstaller's bootloader looks like a
-  dropper to static ML engines (unsigned, no version info, unpacks and executes a payload at
-  runtime), which produced `BehavesLike.Win64.Dropper` / `Static AI - Suspicious PE` false
-  positives. The service is now compiled to native code; the executable also carries proper
-  Windows version information.
+- **Repackaged with Nuitka instead of PyInstaller.** The service is compiled to native code
+  and the executable now carries proper Windows version information. The package also no
+  longer ships any external helper executable.
 - **Fixed: volume changes silently did nothing.** Windows COM must be initialised per thread,
   and the volume code runs on a worker thread, so `pycaw` failed with
   `CoInitialize has not been called` (-2147221008). Now initialised before use.

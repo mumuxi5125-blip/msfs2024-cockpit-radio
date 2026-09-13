@@ -12,14 +12,13 @@
 
 > ⚠️ 第 2 步的 exe 是出声引擎，**必须先运行再进游戏**，否则没声音。免安装、免 Python。
 
-## 关于杀软误报
+## 关于杀软提示
 
-服务端是开源的 Python 程序，用 [Nuitka](https://nuitka.net/) 编译成原生 exe（非 PyInstaller，
-不带运行时自解压载荷）。它未做代码签名，且会拉起同目录的 `ffplay.exe` 播放音频，
-少数引擎可能给出 `Suspicious` / `Unsafe` 之类的启发式判定。
+服务端是开源的 Python 程序，用 [Nuitka](https://nuitka.net/) 编译成原生 exe，**未做代码签名**，
+所以少数安全引擎可能给出"不确定 / 可疑"这类启发式提示。这是所有未签名免费软件的常见情况。
 
 源码在 `server/` 目录可自行审阅，也可用 `tools/build_nuitka.ps1` 自行编译。
-如被拦截，请把 `CockpitRadioServer` 文件夹加入信任。
+如遇拦截，把 `CockpitRadioServer` 文件夹加入信任即可。
 
 ## 构建（自行编译）
 
